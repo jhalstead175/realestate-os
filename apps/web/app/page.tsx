@@ -1,16 +1,19 @@
 // app/page.tsx
-export default function ObsidianReality() {
+import GlyphFragments from '@/components/ceremony/GlyphFragments';
+
+export default function Home() {
   return (
-    <div className="bg-black text-gray-300 min-h-screen p-8 font-mono">
-      <h1 className="text-4xl mb-2">⬤ OBSIDIAN REALITY v0.0.1</h1>
-      <p className="text-amber-200">Trinity Fusion Protocol — ONLINE</p>
-      <div className="mt-12">
-        <p className="text-lg">
-          Building the quiet room where Evidentia, Vaticor, and VIPCIRCL meet.
-        </p>
-        <p className="mt-4 text-gray-500">
-          // Next: The Table. The Ledger. The Silence.
-        </p>
+    <div className="relative">
+      <GlyphFragments />
+
+      {/* Hidden audio for resonance */}
+      <audio autoPlay loop className="hidden">
+        <source src="/audio/resonance.mp3" type="audio/mpeg" />
+      </audio>
+
+      {/* Instructions (fades out) */}
+      <div className="absolute top-8 left-8 text-gray-600 text-sm animate-pulse">
+        ⬤ Stand witness to the reunion
       </div>
     </div>
   );
