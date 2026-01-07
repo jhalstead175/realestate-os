@@ -1,33 +1,27 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { TransactionDetail } from '@/components/transactions/transaction-detail';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-
 export default function TransactionDetailPage() {
-  const params = useParams();
-  const transactionId = params.id as string;
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-4">
-        <Link href="/dashboard/transactions">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Pipeline
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold">Transaction Details</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-pink-100">
+      <div className="text-center p-8 bg-white rounded-lg shadow-xl max-w-md">
+        <div className="mb-6">
+          <div className="text-6xl mb-4">📄</div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Transaction Details Coming Soon
+          </h1>
           <p className="text-gray-600">
-            Manage all aspects of this transaction
+            Detailed transaction views are under construction.
           </p>
         </div>
+        <div className="border-t pt-6 mt-6">
+          <a
+            href="/"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-colors"
+          >
+            ← Back to Home
+          </a>
+        </div>
       </div>
-
-      <TransactionDetail transactionId={transactionId} />
     </div>
   );
 }
