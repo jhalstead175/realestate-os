@@ -1,4 +1,3 @@
-cat > package.json << 'EOF'
 {
   "name": "realestate-app",
   "version": "0.1.0",
@@ -9,9 +8,8 @@ cat > package.json << 'EOF'
     "start": "next start"
   },
   "dependencies": {
-    "next": "14.0.4",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   }
 }
-EOF
