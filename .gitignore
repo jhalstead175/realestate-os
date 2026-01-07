@@ -36,3 +36,9 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Duplicate turborepo template folder
+my-turborepo/
+
+# Separate projects/submodules
+obsidian-reality/
