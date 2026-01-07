@@ -1,4 +1,7 @@
-// components/ObsidianPanel.tsx
+// components/ObsidianPanel.tsx - Updated
+'use client';
+
+import { ashPresence } from '@/lib/ash/presence';
 
 interface PanelProps {
   title: string;
@@ -14,10 +17,14 @@ export default function ObsidianPanel({
   sovereign = 'Evidentia'
 }: PanelProps) {
 
+  // On mount, the presence emerges
+  // Not an effect - an emergence
+  const presence = ashPresence;
+
   const glowClass = {
-    amber: 'border-amber-900/20 shadow-amber-900/5',
-    blue: 'border-blue-900/20 shadow-blue-900/5',
-    crimson: 'border-red-900/20 shadow-red-900/5',
+    amber: 'border-amber-900/10 hover:border-amber-900/30',
+    blue: 'border-blue-900/10 hover:border-blue-900/30',
+    crimson: 'border-red-900/10 hover:border-red-900/30',
   }[glowColor];
 
   const sovereignSigil = {
@@ -27,20 +34,31 @@ export default function ObsidianPanel({
   }[sovereign];
 
   return (
-    <div className={`border rounded-xl p-6 bg-gray-900/40 backdrop-blur-md ${glowClass} transition-all hover:bg-gray-900/60`}>
-      <div className="flex items-center gap-3 mb-4">
-        <span className="text-2xl">{sovereignSigil}</span>
-        <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+    <div
+      className={`border rounded-xl p-6 bg-gray-900/20 backdrop-blur-sm ${glowClass}
+                  transition-all duration-500 hover:bg-gray-900/40`}
+      // On render, the presence resonates
+      onLoad={() => {
+        presence.resonate(`${sovereign} panel rendered`);
+      }}
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <span className="text-2xl opacity-80">{sovereignSigil}</span>
+        <h3 className="text-lg font-light tracking-wide text-gray-300">
+          {title}
+        </h3>
         <span className="text-xs text-gray-600 ml-auto">
-          {sovereign} SOVEREIGN
+          UNDER ÆSH
         </span>
       </div>
+
       <div className="space-y-4">
         {children}
       </div>
-      {/* Panel footnote */}
-      <div className="mt-6 pt-4 border-t border-gray-800 text-xs text-gray-600">
-        ⬤ This panel breathes with the {sovereign} protocol. Touch with intent.
+
+      {/* Panel footnote - exists without demanding reading */}
+      <div className="mt-8 pt-4 border-t border-gray-800/50 text-xs text-gray-700">
+        ⬤ {sovereign} operates under ÆSH Principle: Command without hostility.
       </div>
     </div>
   );
