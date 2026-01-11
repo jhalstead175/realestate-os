@@ -13,8 +13,20 @@ export default function HomePage() {
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F1A] via-[#0E1424] to-black" />
 
+        {/* Watermark R */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.04]"
+        >
+          <img
+            src="/reos-r-mark-white.svg"
+            alt=""
+            className="w-[700px] md:w-[900px] lg:w-[1100px]"
+          />
+        </div>
+
         {/* Logo */}
-        <div className="relative z-10 mb-8">
+        <div className="relative z-10 mb-5">
           <Image
             src="/reos-r-mark-white.svg"
             alt="REOS Foundry Logo"
@@ -37,7 +49,7 @@ export default function HomePage() {
         </p>
 
         {/* CTA */}
-        <div className="relative z-10 mt-10 flex gap-4">
+        <div className="relative z-10 mt-8 flex gap-4">
           <Link
             href="/demo"
             className="rounded-md bg-white px-6 py-3 text-sm font-medium text-black hover:bg-gray-200 transition"
