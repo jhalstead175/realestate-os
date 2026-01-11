@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "REOS Foundry - Transaction System of Record",
-  description: "The Real Estate Operating System. A system of record for transaction truth, closing readiness, and accountability.",
+  title: "REOS Foundry — Real Estate Operating System",
+  description: "REOS Foundry is a transaction system of record for real estate brokerages. It delivers closing readiness, audit-grade narratives, and authority enforcement.",
 };
 
 export default function RootLayout({
