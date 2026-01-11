@@ -18,27 +18,37 @@ export async function POST(
   try {
     const dealId = params.id;
 
+    // Accept optional asOfDate query param for time-travel
+    const { searchParams } = new URL(request.url);
+    const asOfDate = searchParams.get('asOfDate');
+
     // Build decision context (single source of truth)
+    // TODO: Implement asOfDate filtering in buildDecisionContext
     const decisionContext = await buildDecisionContext({
       actorId: 'PDF_GENERATOR',
       transactionId: dealId,
+      // asOfDate: asOfDate ? new Date(asOfDate) : undefined, // Future implementation
     });
 
     // Generate narrative
     const narrative = await generateAuditNarrative({
       decisionContext,
       dealId,
-      purpose: 'Regulatory Inquiry',
+      purpose: asOfDate ? `As-of ${asOfDate}` : 'Regulatory Inquiry',
     });
 
     // Render to PDF
     const pdfBuffer = await renderNarrativeToPDF(narrative);
 
     // Return PDF
+    const filename = asOfDate
+      ? `Audit-Narrative-${dealId}-AsOf-${asOfDate}.pdf`
+      : `Audit-Narrative-${dealId}.pdf`;
+
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="Audit-Narrative-${dealId}.pdf"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
         'Cache-Control': 'no-store',
       },
     });
