@@ -120,12 +120,21 @@ export default function HomePage() {
           <div className="text-xs text-gray-500">
             © {new Date().getFullYear()} REOS Foundry. All rights reserved.
           </div>
-          <div className="flex gap-6 text-xs">
+          <div className="flex flex-wrap gap-6 text-xs justify-center">
             <Link href="/security" className="text-gray-500 hover:text-gray-300 transition">
               Security & Governance
             </Link>
             <Link href="/regulator" className="text-gray-500 hover:text-gray-300 transition">
               System Overview
+            </Link>
+            <Link href="/privacy" className="text-gray-500 hover:text-gray-300 transition">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-gray-500 hover:text-gray-300 transition">
+              Terms
+            </Link>
+            <Link href="/status" className="text-gray-500 hover:text-gray-300 transition">
+              Status
             </Link>
           </div>
         </div>
