@@ -2,5 +2,7 @@
 # The root /app directory contains the public landing page
 # The /apps/web directory is the separate enterprise application
 # The /packages directory contains monorepo shared code (not needed for landing page)
+# The /scripts directory contains test and utility scripts (not needed for landing page)
 apps/
 packages/
+scripts/
