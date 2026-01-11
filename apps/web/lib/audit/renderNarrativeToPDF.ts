@@ -1,279 +1,267 @@
 /**
- * PDF Renderer for Audit Narratives
- *
- * Deterministic, server-side PDF generation.
- * No UI state. No client-side rendering.
+ * Court-Filing-Grade PDF Renderer (Deterministic, Conservative)
  *
  * Design Principles:
+ * - Serif font (Times-like)
+ * - Wide margins (72pt = 1 inch)
+ * - Clear section numbering (I, II, III)
+ * - Conservative spacing
+ * - No colors except black
  * - Legal-grade formatting
- * - Monospaced timestamps
- * - Section numbering (I, II, III)
- * - Wide margins for annotations
- * - Watermark: "AUDIT NARRATIVE - GENERATED FROM IMMUTABLE EVENT LOG"
- *
- * Implementation Options:
- * 1. PDFKit (Node.js) - Simple, lightweight
- * 2. Puppeteer (Headless Chrome) - HTML→PDF, heavy
- * 3. ReportLab (Python via Lambda) - Enterprise-grade
- * 4. Typst (Modern typesetting) - Beautiful output
- *
- * For now: Stub implementation that returns structured text.
- * In production: Use PDFKit or external service.
  */
 
+import { Buffer } from 'buffer';
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf,
+} from '@react-pdf/renderer';
 import type { AuditNarrative } from '@/lib/narrative/generateAuditNarrative';
 
-/**
- * Render audit narrative to PDF buffer
- *
- * @param narrative - The audit narrative to render
- * @returns PDF buffer ready for download
- */
+// ================= STYLE GUIDE =================
+
+const styles = StyleSheet.create({
+  page: {
+    paddingTop: 72,
+    paddingBottom: 72,
+    paddingHorizontal: 72,
+    fontSize: 11,
+    lineHeight: 1.5,
+    fontFamily: 'Times-Roman',
+  },
+  title: {
+    fontSize: 16,
+    marginBottom: 24,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    fontSize: 10,
+    marginBottom: 12,
+    textAlign: 'center',
+    color: '#666666',
+  },
+  sectionTitle: {
+    fontSize: 12,
+    marginTop: 18,
+    marginBottom: 6,
+    fontWeight: 'bold',
+  },
+  paragraph: {
+    marginBottom: 8,
+    textAlign: 'justify',
+  },
+  metadata: {
+    fontSize: 9,
+    marginBottom: 4,
+    color: '#333333',
+  },
+  eventEntry: {
+    marginBottom: 12,
+    marginLeft: 12,
+  },
+  eventHeader: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  eventDetail: {
+    fontSize: 9,
+    marginBottom: 2,
+    marginLeft: 8,
+  },
+  footer: {
+    position: 'absolute',
+    bottom: 36,
+    left: 72,
+    right: 72,
+    fontSize: 9,
+    textAlign: 'center',
+    color: '#666666',
+  },
+});
+
+// ================= DOCUMENT COMPONENTS =================
+
+function AuditNarrativePDF({ narrative }: { narrative: AuditNarrative }) {
+  return (
+    <Document>
+      <Page size="LETTER" style={styles.page}>
+        {/* Title Page */}
+        <Text style={styles.title}>AUDIT NARRATIVE</Text>
+        <Text style={styles.subtitle}>Transaction Record</Text>
+        <Text style={styles.metadata}>Deal ID: {narrative.dealId}</Text>
+        <Text style={styles.metadata}>
+          Generated: {new Date(narrative.generatedAt).toLocaleString()}
+        </Text>
+        <Text style={styles.metadata}>Purpose: {narrative.generatedFor}</Text>
+        <Text style={styles.metadata}>
+          Replayable: {narrative.replayable ? 'Yes' : 'No'}
+        </Text>
+
+        {/* Section I - Transaction Overview */}
+        <Text style={styles.sectionTitle}>I. Transaction Overview</Text>
+        <Text style={styles.paragraph}>
+          Property: {narrative.summary.propertyAddress}
+        </Text>
+        <Text style={styles.paragraph}>
+          Current State: {narrative.summary.currentState}
+        </Text>
+        <Text style={styles.paragraph}>
+          Closing Readiness: {narrative.summary.closingReadiness}
+        </Text>
+
+        {narrative.summary.blockingIssues.length > 0 && (
+          <>
+            <Text style={styles.paragraph}>Blocking Issues:</Text>
+            {narrative.summary.blockingIssues.map((issue, idx) => (
+              <Text key={idx} style={styles.eventDetail}>
+                • {issue}
+              </Text>
+            ))}
+          </>
+        )}
+
+        {/* Section II - Chronological Event History */}
+        <Text style={styles.sectionTitle}>II. Chronological Event History</Text>
+        {narrative.timeline.map((entry, idx) => (
+          <View key={idx} style={styles.eventEntry}>
+            <Text style={styles.eventHeader}>
+              Event {idx + 1}: {entry.eventType}
+            </Text>
+            <Text style={styles.eventDetail}>
+              Timestamp: {new Date(entry.timestamp).toLocaleString()}
+            </Text>
+            <Text style={styles.eventDetail}>Actor: {entry.actor}</Text>
+            <Text style={styles.eventDetail}>Action: {entry.action}</Text>
+            {entry.justification && (
+              <Text style={styles.eventDetail}>
+                Justification: {entry.justification}
+              </Text>
+            )}
+            <Text style={styles.eventDetail}>Outcome: {entry.outcome}</Text>
+            <Text style={styles.eventDetail}>Event ID: {entry.eventId}</Text>
+          </View>
+        ))}
+
+        {/* Section III - Authority & Responsibility */}
+        <Text style={styles.sectionTitle}>III. Authority & Responsibility</Text>
+        {narrative.authorityChain.map((auth, idx) => (
+          <View key={idx} style={styles.eventEntry}>
+            <Text style={styles.eventHeader}>Actor: {auth.actor}</Text>
+            <Text style={styles.eventDetail}>
+              Authority: {auth.authorityGranted}
+            </Text>
+            <Text style={styles.eventDetail}>
+              Granted By: {auth.grantedBy}
+            </Text>
+            <Text style={styles.eventDetail}>
+              Granted At: {new Date(auth.grantedAt).toLocaleString()}
+            </Text>
+            <Text style={styles.eventDetail}>
+              Currently Active: {auth.currentlyActive ? 'Yes' : 'No'}
+            </Text>
+            <Text style={styles.eventDetail}>Event ID: {auth.eventId}</Text>
+          </View>
+        ))}
+
+        {/* Section IV - Closing Readiness Determination */}
+        <Text style={styles.sectionTitle}>
+          IV. Closing Readiness Determination
+        </Text>
+        <Text style={styles.paragraph}>
+          Overall Status: {narrative.readinessAnalysis.overallStatus.toUpperCase()}
+        </Text>
+        <Text style={styles.paragraph}>
+          Reasoning: {narrative.readinessAnalysis.reasoning}
+        </Text>
+
+        {narrative.readinessAnalysis.nodes.map((node, idx) => (
+          <View key={idx} style={styles.eventEntry}>
+            <Text style={styles.eventHeader}>
+              [{node.status.toUpperCase()}] {node.label}
+            </Text>
+            <Text style={styles.eventDetail}>Evidence: {node.evidence}</Text>
+            <Text style={styles.eventDetail}>Source: {node.source}</Text>
+            <Text style={styles.eventDetail}>
+              Verified: {new Date(node.verifiedAt).toLocaleString()}
+            </Text>
+          </View>
+        ))}
+
+        {/* Section V - Federated Interactions */}
+        <Text style={styles.sectionTitle}>V. Federated Interactions</Text>
+        {narrative.federatedInteractions.map((fed, idx) => (
+          <View key={idx} style={styles.eventEntry}>
+            <Text style={styles.eventHeader}>
+              {fed.displayName} ({fed.nodeType})
+            </Text>
+            {fed.interactions.map((interaction, iIdx) => (
+              <View key={iIdx} style={{ marginLeft: 8, marginBottom: 4 }}>
+                <Text style={styles.eventDetail}>
+                  {new Date(interaction.timestamp).toLocaleString()} -{' '}
+                  {interaction.eventType}
+                </Text>
+                <Text style={styles.eventDetail}>
+                  Signature Verified: {interaction.signatureVerified ? 'Yes' : 'No'}
+                </Text>
+                <Text style={styles.eventDetail}>
+                  Event ID: {interaction.eventId}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ))}
+
+        {/* Section VI - System Safeguards */}
+        <Text style={styles.sectionTitle}>VI. System Safeguards & Controls</Text>
+        <Text style={styles.paragraph}>
+          Authority Enforcement: All actions verified against derived authority
+          from event stream. Illegal actions prevented at system level.
+        </Text>
+        <Text style={styles.paragraph}>
+          Event Integrity: All events signed and timestamped. Immutable
+          append-only log. Total events: {narrative.eventCount}.
+        </Text>
+        <Text style={styles.paragraph}>
+          Federated Trust: All federated assertions cryptographically signed.
+          External nodes cannot mutate transaction state.
+        </Text>
+        <Text style={styles.paragraph}>
+          Audit Capability: This narrative is deterministically generated. Any
+          authorized party can reproduce this exact document.
+        </Text>
+
+        {/* Section VII - Conclusion */}
+        <Text style={styles.sectionTitle}>VII. Conclusion</Text>
+        <Text style={styles.paragraph}>
+          {narrative.readinessAnalysis.overallStatus === 'ready'
+            ? 'This transaction has satisfied all closing readiness requirements. All participating authorities have provided necessary assertions.'
+            : narrative.readinessAnalysis.overallStatus === 'blocked'
+            ? `This transaction is currently BLOCKED from closing. Reason: ${narrative.readinessAnalysis.reasoning}`
+            : 'This transaction is in conditional readiness state. Some dependencies are satisfied, others are pending.'}
+        </Text>
+
+        {/* Footer */}
+        <Text style={styles.footer}>
+          Generated automatically from signed events and enforced authority
+          rules. Deterministic and replayable.
+        </Text>
+      </Page>
+    </Document>
+  );
+}
+
+// ================= EXPORT FUNCTION =================
+
 export async function renderNarrativeToPDF(
   narrative: AuditNarrative
 ): Promise<Buffer> {
-  // TODO: Implement actual PDF generation
-  // For now: Return structured text as placeholder
-
-  const text = generatePDFText(narrative);
-
-  // In production, use PDFKit:
-  // const PDFDocument = require('pdfkit');
-  // const doc = new PDFDocument({ margins: { top: 72, bottom: 72, left: 72, right: 72 }});
-  // doc.fontSize(12).font('Times-Roman');
-  // doc.text(text);
-  // const buffer = await streamToBuffer(doc);
-  // return buffer;
-
-  // Placeholder: Return text as buffer
-  return Buffer.from(text, 'utf-8');
-}
-
-/**
- * Generate formatted text for PDF
- */
-function generatePDFText(narrative: AuditNarrative): string {
-  const lines: string[] = [];
-
-  // Title Page
-  lines.push('');
-  lines.push(''.padStart(80, '='));
-  lines.push('AUDIT NARRATIVE'.padStart(47));
-  lines.push('TRANSACTION RECORD'.padStart(49));
-  lines.push(''.padStart(80, '='));
-  lines.push('');
-  lines.push(`Deal ID: ${narrative.dealId}`.padStart(50));
-  lines.push(`Generated: ${new Date(narrative.generatedAt).toLocaleString()}`.padStart(60));
-  lines.push(`Purpose: ${narrative.generatedFor}`.padStart(52));
-  lines.push('');
-  lines.push('GENERATED FROM IMMUTABLE EVENT LOG'.padStart(57));
-  lines.push('DETERMINISTIC - REPLAYABLE - VERIFIABLE'.padStart(59));
-  lines.push('');
-  lines.push(''.padStart(80, '='));
-  lines.push('');
-  lines.push('');
-
-  // Section I - Transaction Overview
-  lines.push('I. TRANSACTION OVERVIEW');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-  lines.push(`Property Address: ${narrative.summary.propertyAddress}`);
-  lines.push(`Current State: ${narrative.summary.currentState}`);
-  lines.push(`Closing Readiness: ${narrative.summary.closingReadiness}`);
-  lines.push('');
-
-  if (narrative.summary.blockingIssues.length > 0) {
-    lines.push('Blocking Issues:');
-    narrative.summary.blockingIssues.forEach((issue) => {
-      lines.push(`  • ${issue}`);
-    });
-    lines.push('');
-  }
-
-  if (narrative.summary.keyDates.contractAccepted) {
-    lines.push('Key Dates:');
-    lines.push(`  Contract Accepted: ${narrative.summary.keyDates.contractAccepted}`);
-    if (narrative.summary.keyDates.targetClosing) {
-      lines.push(`  Target Closing: ${narrative.summary.keyDates.targetClosing}`);
-    }
-    if (narrative.summary.keyDates.actualClosing) {
-      lines.push(`  Actual Closing: ${narrative.summary.keyDates.actualClosing}`);
-    }
-    lines.push('');
-  }
-
-  lines.push('Participating Authorities:');
-  narrative.summary.participatingAuthorities.forEach((auth) => {
-    lines.push(`  • ${auth}`);
-  });
-  lines.push('');
-  lines.push('');
-
-  // Section II - Chronological Event History
-  lines.push('II. CHRONOLOGICAL EVENT HISTORY');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  narrative.timeline.forEach((entry, idx) => {
-    lines.push(`Event ${idx + 1}:`);
-    lines.push(`  Timestamp: ${new Date(entry.timestamp).toLocaleString()}`);
-    lines.push(`  Type: ${entry.eventType}`);
-    lines.push(`  Actor: ${entry.actor}`);
-    lines.push(`  Action: ${entry.action}`);
-    if (entry.justification) {
-      lines.push(`  Justification: ${entry.justification}`);
-    }
-    lines.push(`  Outcome: ${entry.outcome}`);
-    lines.push(`  Event ID: ${entry.eventId} (verifiable in immutable log)`);
-    lines.push('');
-  });
-
-  lines.push('');
-
-  // Section III - Authority & Responsibility
-  lines.push('III. AUTHORITY & RESPONSIBILITY');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  narrative.authorityChain.forEach((auth) => {
-    lines.push(`Actor: ${auth.actor}`);
-    lines.push(`  Authority Granted: ${auth.authorityGranted}`);
-    lines.push(`  Granted By: ${auth.grantedBy}`);
-    lines.push(`  Granted At: ${new Date(auth.grantedAt).toLocaleString()}`);
-    lines.push(`  Currently Active: ${auth.currentlyActive ? 'YES' : 'NO'}`);
-    lines.push(`  Event ID: ${auth.eventId} (verifiable)`);
-    lines.push('');
-  });
-
-  lines.push('');
-
-  // Section IV - Closing Readiness Determination
-  lines.push('IV. CLOSING READINESS DETERMINATION');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  lines.push(`Overall Status: ${narrative.readinessAnalysis.overallStatus.toUpperCase()}`);
-  lines.push(`Reasoning: ${narrative.readinessAnalysis.reasoning}`);
-  lines.push('');
-
-  lines.push('Readiness Node Analysis:');
-  lines.push('');
-
-  narrative.readinessAnalysis.nodes.forEach((node) => {
-    lines.push(`  [${node.status.toUpperCase()}] ${node.label}`);
-    lines.push(`    Evidence: ${node.evidence}`);
-    lines.push(`    Source: ${node.source}`);
-    lines.push(`    Verified At: ${new Date(node.verifiedAt).toLocaleString()}`);
-    lines.push('');
-  });
-
-  lines.push('');
-
-  // Section V - Federated Interactions
-  lines.push('V. FEDERATED INTERACTIONS');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  narrative.federatedInteractions.forEach((fed) => {
-    lines.push(`Federated Node: ${fed.displayName} (${fed.nodeType})`);
-    lines.push(`  Total Interactions: ${fed.interactions.length}`);
-    lines.push('');
-
-    fed.interactions.forEach((interaction, idx) => {
-      lines.push(`  Interaction ${idx + 1}:`);
-      lines.push(`    Timestamp: ${new Date(interaction.timestamp).toLocaleString()}`);
-      lines.push(`    Event Type: ${interaction.eventType}`);
-      lines.push(`    Signature Verified: ${interaction.signatureVerified ? 'YES' : 'NO'}`);
-      lines.push(`    Event ID: ${interaction.eventId}`);
-      lines.push('');
-    });
-  });
-
-  lines.push('');
-
-  // Section VI - System Safeguards
-  lines.push('VI. SYSTEM SAFEGUARDS & CONTROLS');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  lines.push('Authority Enforcement:');
-  lines.push('  • All actions verified against derived authority from event stream');
-  lines.push('  • Illegal actions prevented at system level (not just UI)');
-  lines.push('  • Role computed from events, never assumed from user metadata');
-  lines.push('');
-
-  lines.push('Event Integrity:');
-  lines.push('  • All events signed and timestamped');
-  lines.push('  • Immutable append-only log');
-  lines.push(`  • Total events in this transaction: ${narrative.eventCount}`);
-  lines.push(`  • First event: ${new Date(narrative.firstEventAt).toLocaleString()}`);
-  lines.push(`  • Last event: ${new Date(narrative.lastEventAt).toLocaleString()}`);
-  lines.push('');
-
-  lines.push('Federated Trust:');
-  lines.push('  • All federated assertions cryptographically signed');
-  lines.push('  • External nodes cannot mutate transaction state');
-  lines.push('  • Proposals flow through enforcement spine');
-  lines.push('');
-
-  lines.push('Audit Capability:');
-  lines.push('  • This narrative is deterministically generated');
-  lines.push('  • Any authorized party can reproduce this exact text');
-  lines.push('  • All event IDs verifiable against canonical log');
-  lines.push('  • Replayable to any point in time');
-  lines.push('');
-  lines.push('');
-
-  // Section VII - Conclusion
-  lines.push('VII. CONCLUSION');
-  lines.push(''.padStart(80, '-'));
-  lines.push('');
-
-  if (narrative.readinessAnalysis.overallStatus === 'ready') {
-    lines.push('This transaction has satisfied all closing readiness requirements.');
-    lines.push('All blocking issues have been resolved.');
-    lines.push('All participating authorities have provided necessary assertions.');
-    lines.push('The system has verified compliance with all enforcement rules.');
-  } else if (narrative.readinessAnalysis.overallStatus === 'blocked') {
-    lines.push('This transaction is currently BLOCKED from closing.');
-    lines.push(`Reason: ${narrative.readinessAnalysis.reasoning}`);
-    lines.push('');
-    lines.push('Blocking nodes must be resolved before closing can proceed.');
-  } else {
-    lines.push('This transaction is in conditional readiness state.');
-    lines.push('Some dependencies are satisfied, others are pending.');
-  }
-
-  lines.push('');
-  lines.push('This narrative represents the authoritative state of the transaction');
-  lines.push('as derived from the immutable event log.');
-  lines.push('');
-  lines.push('');
-
-  // Footer
-  lines.push(''.padStart(80, '='));
-  lines.push('END OF AUDIT NARRATIVE'.padStart(51));
-  lines.push(''.padStart(80, '='));
-  lines.push('');
-  lines.push(`Generated: ${new Date(narrative.generatedAt).toLocaleString()}`.padStart(60));
-  lines.push(`Deal ID: ${narrative.dealId}`.padStart(50));
-  lines.push(`Replayable: ${narrative.replayable ? 'YES' : 'NO'}`.padStart(52));
-  lines.push('');
-  lines.push('This document is a deterministic projection of the canonical event stream.');
-  lines.push('All statements are traceable to signed events in the immutable log.');
-  lines.push('Any authorized party can verify these conclusions by replaying the events.');
-
-  return lines.join('\n');
-}
-
-/**
- * Helper to convert stream to buffer (for actual PDF generation)
- */
-async function streamToBuffer(stream: any): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: any[] = [];
-    stream.on('data', (chunk: any) => chunks.push(chunk));
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-    stream.on('error', reject);
-  });
+  const doc = <AuditNarrativePDF narrative={narrative} />;
+  const asPdf = pdf(doc);
+  const buffer = await asPdf.toBuffer();
+  return Buffer.from(buffer);
 }
