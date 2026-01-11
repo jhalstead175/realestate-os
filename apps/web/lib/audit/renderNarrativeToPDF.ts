@@ -20,6 +20,7 @@ import {
   pdf,
 } from '@react-pdf/renderer';
 import type { AuditNarrative } from '@/lib/narrative/generateAuditNarrative';
+import type { AuditAppendix } from './buildAppendix';
 
 // ================= STYLE GUIDE =================
 
@@ -86,7 +87,13 @@ const styles = StyleSheet.create({
 
 // ================= DOCUMENT COMPONENTS =================
 
-function AuditNarrativePDF({ narrative }: { narrative: AuditNarrative }) {
+function AuditNarrativePDF({
+  narrative,
+  appendix,
+}: {
+  narrative: AuditNarrative;
+  appendix?: AuditAppendix;
+}) {
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
@@ -245,6 +252,34 @@ function AuditNarrativePDF({ narrative }: { narrative: AuditNarrative }) {
             : 'This transaction is in conditional readiness state. Some dependencies are satisfied, others are pending.'}
         </Text>
 
+        {/* Appendix A - Federated Document References */}
+        {appendix && appendix.federatedDocs.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>
+              Appendix A — Federated Document References
+            </Text>
+            {appendix.federatedDocs.map((doc, idx) => (
+              <Text key={idx} style={styles.paragraph}>
+                {doc.type} • {doc.hash} • {doc.source} •{' '}
+                {new Date(doc.receivedAt).toLocaleString()}
+              </Text>
+            ))}
+          </>
+        )}
+
+        {/* Appendix B - Event Ledger */}
+        {appendix && appendix.eventIds.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Appendix B — Event Ledger</Text>
+            {appendix.eventIds.map((event, idx) => (
+              <Text key={idx} style={styles.eventDetail}>
+                {event.id} • {event.type} •{' '}
+                {new Date(event.timestamp).toLocaleString()}
+              </Text>
+            ))}
+          </>
+        )}
+
         {/* Footer */}
         <Text style={styles.footer}>
           Generated automatically from signed events and enforced authority
@@ -258,9 +293,12 @@ function AuditNarrativePDF({ narrative }: { narrative: AuditNarrative }) {
 // ================= EXPORT FUNCTION =================
 
 export async function renderNarrativeToPDF(
-  narrative: AuditNarrative
+  narrative: AuditNarrative,
+  options?: {
+    appendix?: AuditAppendix;
+  }
 ): Promise<Buffer> {
-  const doc = <AuditNarrativePDF narrative={narrative} />;
+  const doc = <AuditNarrativePDF narrative={narrative} appendix={options?.appendix} />;
   const asPdf = pdf(doc);
   const buffer = await asPdf.toBuffer();
   return Buffer.from(buffer);
