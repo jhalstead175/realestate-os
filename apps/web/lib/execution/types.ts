@@ -5,6 +5,35 @@
  * All decision-making flows from these types.
  */
 
+/**
+ * Execution Context
+ *
+ * Threaded through all command execution paths.
+ * Mode determines safety guarantees:
+ * - live: Normal execution, can mutate reality
+ * - replay: Historical rehydration, no mutations allowed
+ * - counterfactual: What-if analysis, no mutations allowed
+ */
+export type ExecutionMode = 'live' | 'replay' | 'counterfactual';
+
+export interface ExecutionContext {
+  mode: ExecutionMode;
+  replayToken?: ReplayToken;
+}
+
+/**
+ * Replay Token
+ *
+ * Required for all replay operations.
+ * Provides accountability and auditability.
+ */
+export interface ReplayToken {
+  replayId: string;
+  initiatedBy: string;
+  reason: string;
+  timestamp: string;
+}
+
 export type TransactionState =
   | 'initiated'
   | 'qualified'
