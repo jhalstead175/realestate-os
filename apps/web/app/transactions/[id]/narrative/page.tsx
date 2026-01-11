@@ -9,6 +9,7 @@
 
 import { buildDecisionContext } from '@/lib/execution';
 import { generateAuditNarrative, formatNarrativeAsText } from '@/lib/narrative/generateAuditNarrative';
+import { AuditExportControls } from '@/components/audit/AuditExportControls';
 
 export default async function NarrativePage({
   params,
@@ -41,23 +42,8 @@ export default async function NarrativePage({
           </p>
         </div>
 
-        {/* Export Actions */}
-        <div className="flex gap-2">
-          <a
-            href={`/api/narrative/${transactionId}?format=text`}
-            download
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-sm"
-          >
-            Download .txt
-          </a>
-          <a
-            href={`/api/narrative/${transactionId}?format=json`}
-            download
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-          >
-            Download .json
-          </a>
-        </div>
+        {/* Export Controls */}
+        <AuditExportControls dealId={transactionId} />
       </div>
 
       {/* Metadata */}
