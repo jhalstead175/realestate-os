@@ -8,7 +8,7 @@
  * For now: Simple async execution
  */
 
-import { runAgent } from './runAgent';
+import { runAutomationSafely } from './runAutomationSafely';
 import { handleProposedCommand } from './handleProposal';
 import { AUTOMATIONS } from './registry';
 import { emitEvent } from '@/lib/db/events';
@@ -34,6 +34,7 @@ export async function enqueueAgentRun(
  * Execute agent run
  *
  * Orchestrates: agent invocation → proposal validation → command execution
+ * All failures are captured via runAutomationSafely
  */
 async function executeAgentRun(request: AutomationRunRequest): Promise<void> {
   const { automationId, agent, eventId, aggregateId } = request;
@@ -44,8 +45,8 @@ async function executeAgentRun(request: AutomationRunRequest): Promise<void> {
     throw new Error(`Automation not found: ${automationId}`);
   }
 
-  // 1. Invoke agent with decision context
-  const proposal = await runAgent(request);
+  // 1. Invoke agent with decision context (wrapped with DLQ capture)
+  const proposal = await runAutomationSafely(request, 'agent_invocation');
 
   if (!proposal) {
     console.log(`Agent ${agent} produced no proposal`);
