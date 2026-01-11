@@ -1,18 +1,11 @@
 // app/regulator/page.tsx
 // Investor / Regulator Mode
 
-import Link from 'next/link';
-
 export default function RegulatorPage() {
   return (
     <main className="min-h-screen bg-[#0B0F1A] text-white px-6 py-24">
       <div className="max-w-4xl mx-auto space-y-10">
-        <div>
-          <Link href="/" className="text-sm text-gray-400 hover:text-white mb-6 inline-block">
-            ← Back to home
-          </Link>
-          <h1 className="text-3xl font-semibold">System Overview</h1>
-        </div>
+        <h1 className="text-3xl font-semibold">System Overview</h1>
 
         <p className="text-gray-300">
           This page provides a static explanation of how REOS Foundry governs real estate transactions.
