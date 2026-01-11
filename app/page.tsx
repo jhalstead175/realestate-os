@@ -16,7 +16,7 @@ export default function HomePage() {
         {/* Logo */}
         <div className="relative z-10 mb-8">
           <Image
-            src="/logo.svg"
+            src="/reos-r-mark-white.svg"
             alt="REOS Foundry Logo"
             width={128}
             height={128}
