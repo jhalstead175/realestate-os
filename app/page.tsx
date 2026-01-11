@@ -115,8 +115,20 @@ export default function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="px-6 py-12 text-center text-xs text-gray-500 border-t border-gray-800">
-        © {new Date().getFullYear()} REOS Foundry. All rights reserved.
+      <footer className="px-6 py-12 border-t border-gray-800">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-xs text-gray-500">
+            © {new Date().getFullYear()} REOS Foundry. All rights reserved.
+          </div>
+          <div className="flex gap-6 text-xs">
+            <Link href="/security" className="text-gray-500 hover:text-gray-300 transition">
+              Security & Governance
+            </Link>
+            <Link href="/regulator" className="text-gray-500 hover:text-gray-300 transition">
+              System Overview
+            </Link>
+          </div>
+        </div>
       </footer>
     </main>
   );
