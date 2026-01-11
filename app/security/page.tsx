@@ -1,18 +1,11 @@
 // app/security/page.tsx
 // Security & Governance Page
 
-import Link from 'next/link';
-
 export default function SecurityPage() {
   return (
     <main className="min-h-screen bg-[#0B0F1A] text-white px-6 py-24">
       <div className="max-w-4xl mx-auto space-y-12">
-        <div>
-          <Link href="/" className="text-sm text-gray-400 hover:text-white mb-6 inline-block">
-            ← Back to home
-          </Link>
-          <h1 className="text-3xl font-semibold">Security & Governance</h1>
-        </div>
+        <h1 className="text-3xl font-semibold">Security & Governance</h1>
 
         <Section
           title="Event-Sourced System of Record"
