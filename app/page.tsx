@@ -11,7 +11,7 @@ export default function HomePage() {
       {/* HERO */}
       <section className="relative flex flex-col items-center justify-center px-6 py-32 text-center overflow-hidden">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F1A] via-[#0E1424] to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F1A] via-[#0E1424] to-[#0E1424]" />
 
         {/* Watermark R */}
         <div
@@ -43,9 +43,9 @@ export default function HomePage() {
 
         {/* Subheadline */}
         <p className="relative z-10 mt-6 max-w-2xl text-lg md:text-xl text-gray-300">
-          The Real Estate Operating System.
+          The Real Estate Operating System. A system of record for transaction truth,
           <br />
-          A system of record for transaction truth, closing readiness, and accountability.
+          closing readiness, and accountability.
         </p>
 
         {/* CTA */}
