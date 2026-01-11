@@ -15,9 +15,13 @@ export default function HomePage() {
 
         {/* Logo */}
         <div className="relative z-10 mb-8">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-4xl font-bold">REOS</span>
-          </div>
+          <Image
+            src="/logo.svg"
+            alt="REOS Foundry Logo"
+            width={128}
+            height={128}
+            priority
+          />
         </div>
 
         {/* Headline */}
