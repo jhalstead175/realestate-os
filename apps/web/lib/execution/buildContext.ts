@@ -22,6 +22,9 @@ import {
   hasUnresolvedContingencies,
 } from './eventFolding';
 import { computeClosingReadiness as computeReadinessFromAttestations } from '@/lib/federation/closingReadiness';
+import { loadEvents } from '@/lib/db/events';
+import { loadAuthorityEvents } from '@/lib/db/authorities';
+import { loadAttestations } from '@/lib/db/attestations';
 
 /**
  * Build decision context for actor in transaction
@@ -128,75 +131,7 @@ export async function buildDecisionContext(input: {
   }
 }
 
-/**
- * Load events for transaction
- *
- * TODO: Implement database query
- * For now: Mock with empty array
- */
-async function loadEvents(params: {
-  entityType: string;
-  entityId: string;
-}): Promise<any[]> {
-  // TODO: Query events table
-  // SELECT event_type, payload, occurred_at
-  // FROM events
-  // WHERE entity_type = $1 AND entity_id = $2
-  // ORDER BY occurred_at ASC
-
-  return [];
-}
-
-/**
- * Load authority events for actor in transaction
- *
- * TODO: Implement database query
- * For now: Mock based on environment
- */
-async function loadAuthorityEvents(params: {
-  actorId: string;
-  transactionId: string;
-}): Promise<any[]> {
-  // TODO: Query authority events
-  // SELECT event_type, payload, occurred_at
-  // FROM events
-  // WHERE entity_type = 'Authority'
-  //   AND payload->>'actor_id' = $1
-  //   AND payload->>'transaction_id' = $2
-  //   AND event_type IN ('AuthorityGranted', 'AuthorityRevoked')
-  // ORDER BY occurred_at ASC
-
-  // Mock: Grant agent authority for demo
-  return [
-    {
-      event_type: 'AuthorityGranted',
-      payload: {
-        actor_id: params.actorId,
-        transaction_id: params.transactionId,
-        scope: ['advance_to_closing'],
-      },
-      occurred_at: new Date(),
-    },
-  ];
-}
-
-/**
- * Load attestations for transaction
- *
- * TODO: Implement database query
- * For now: Return empty array
- */
-async function loadAttestations(params: {
-  transactionId: string;
-}): Promise<any[]> {
-  // TODO: Query federation_attestations table
-  // SELECT attestation_type, payload, signature, attested_at
-  // FROM federation_attestations
-  // WHERE entity_fingerprint = $1
-  // ORDER BY attested_at DESC
-
-  return [];
-}
+// Database loaders are now imported from @/lib/db/
 
 /**
  * Compute closing readiness state
